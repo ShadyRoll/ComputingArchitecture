@@ -64,6 +64,7 @@ abortInput:
         push strIncorSize
         call [printf]
 
+        ; Завершаем выполнение программы
         jmp finish
 ; Ввод массива
 VectorInput:
