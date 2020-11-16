@@ -82,9 +82,6 @@ vector<int *> tasks;
 void *fillWorker(void *arg) {
     // Индекс книги
     int *index;
-    /* Устанавливаем seed рандома текущим системным временем
-     (нужно для того, чтобы каждый поток генерировал случайные значения) */
-    srand(clock());
 
     // Берем задачи из портфеля, пока он не пуст
     while (true) {
@@ -125,8 +122,18 @@ int main() {
     ifstream in{"input.txt"};
     ofstream out{"output.txt"};
 
+    // Считываем данные из входного файла
     in >> M >> N >> K;
 
+    // Проверка корректности ввода
+    if (M <= 0 || N <= 0 || K <= 0) {
+        out << "M, N and K must be positive integers!" << endl;
+        return 0;
+    }
+
+    /* Устанавливаем seed рандома текущим системным временем
+     (чтобы каждый раз генерировать новые случайные значения) */
+    srand(clock());
 
     // Заполняем портфель задач, параллельно инициируя массив книг
     library = new Book **[M];
@@ -162,7 +169,7 @@ int main() {
     for (int i = 0; i < M; ++i) {
         out << "Row " << i + 1 << ":" << endl;
         for (int j = 0; j < N; ++j) {
-            out << "-Shelf " << j + 1 << ": ";
+            out << "-Cupboard " << j + 1 << ": ";
             for (int k = 0; k < K; ++k) {
                 out << library[i][j][k] << ((k != K - 1) ? ", " : "\n");
             }
