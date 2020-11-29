@@ -16,6 +16,9 @@ static const string vowels = "aeiouy";
  */
 class Book {
 public:
+    /**
+     * Дефолтный конструктор
+     */
     Book() = default;
 
     /**
@@ -44,6 +47,13 @@ public:
         return os;
     }
 
+    /**
+     * Оператор сравнения для сортировки
+     * Справнивает лексиграфически сначала по автору, потом по
+     * названию, далее по количеству страниц
+     * @param book - книга, с которой производится сравнение
+     * @return "меньше" ли книга, чем данная
+     */
     bool operator<(const Book &book) {
         if (author == book.author) {
             if (title == book.title)
@@ -73,7 +83,6 @@ private:
             str += consonants[rand() % consonants.size()];
             str += vowels[rand() % vowels.size()];
         }
-
         return str;
     }
 
@@ -111,7 +120,7 @@ ofstream out{"output.txt"};
 /**
  * Инициализирует библиотеку
  */
-void initLibrary(){
+void initLibrary() {
     library = new Book **[M];
     for (int i = 0; i < M; ++i) {
         library[i] = new Book *[N];
@@ -147,7 +156,7 @@ void generateLibrary() {
 
     // Номер потока
     int threadNum;
-#pragma omp parallel for default(none) private(threadNum) \
+    #pragma omp parallel for default(none) private(threadNum) \
         shared(catalog, library, N, M, K, out)
     for (int i = 0; i < M; ++i) {
         threadNum = omp_get_thread_num();
@@ -159,7 +168,7 @@ void generateLibrary() {
         for (int j = 0; j < N; ++j) {
             for (int k = 0; k < K; ++k) {
                 library[i][j][k] = Book(i, j, k);
-#pragma omp critical
+                #pragma omp critical
                 {
                     out << "Thread" << threadNum << " generated book "
                         << library[i][j][k] << endl;
@@ -169,19 +178,22 @@ void generateLibrary() {
     }
 }
 
+/**
+ * Составляет каталог библиотеки
+ */
 void generateCatalog() {
     catalog = new Book[N * M * K];
     // Номер потока
     int threadNum;
     // Параллельно проходимся по библиотеке и заносим записи в каталог
-#pragma omp parallel for default(none) private(threadNum) \
+    #pragma omp parallel for default(none) private(threadNum) \
         shared(catalog, library, N, M, K, out)
     for (int i = 0; i < M; ++i) {
         threadNum = omp_get_thread_num();
         for (int j = 0; j < N; ++j) {
             for (int k = 0; k < K; ++k) {
                 catalog[i * N * K + j * K + k] = library[i][j][k];
-#pragma omp critical
+                #pragma omp critical
                 {
                     out << "Thread" << threadNum << " added book "
                         << library[i][j][k] << " to catalog" << endl;
