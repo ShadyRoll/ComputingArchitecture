@@ -156,14 +156,15 @@ void generateLibrary() {
 
     // Номер потока
     int threadNum;
+    hash<int> hasher;
     #pragma omp parallel for default(none) private(threadNum) \
-        shared(catalog, library, N, M, K, out)
+        shared(catalog, library, N, M, K, out, hasher)
     for (int i = 0; i < M; ++i) {
         threadNum = omp_get_thread_num();
         /* Устанавливаем seed рандома текущим системным
-         * временем xor номер потока (чтобы каждый поток генерировал
-         * уникальные значения случайные значения) */
-        srand(clock() ^ threadNum);
+         * временем xor хешированный номер потока (чтобы каждый поток
+         * генерировал уникальные значения случайные значения) */
+        srand(clock() ^ hasher(threadNum));
 
         for (int j = 0; j < N; ++j) {
             for (int k = 0; k < K; ++k) {
